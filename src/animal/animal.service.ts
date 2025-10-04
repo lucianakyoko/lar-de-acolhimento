@@ -62,11 +62,11 @@ export class AnimalService {
       images: uploadedImages,
     });
 
-    await newAnimal.save();
+    const savedAnimal = await newAnimal.save();
     return {
       success: true,
       message: 'Animal cadastrado com sucesso!',
-      data: newAnimal,
+      data: savedAnimal,
     };
   }
 
@@ -128,18 +128,15 @@ export class AnimalService {
 
   async delete(id: string): Promise<DeleteAnimalResponse> {
     try {
-      // Validar ID
       if (!id.match(/^[0-9a-fA-F]{24}$/)) {
         throw new NotFoundException('ID inválido');
       }
 
-      // Buscar animal
       const animal = await this.animalModel.findById(id).exec();
       if (!animal) {
         throw new NotFoundException('Animal não encontrado');
       }
 
-      // Deletar imagens do animal (hospedadas no Cloudinary)
       if (animal.images && animal.images.length > 0) {
         await Promise.all(
           animal.images.map(async (url) => {
@@ -151,9 +148,6 @@ export class AnimalService {
         );
       }
 
-      // Não é necessário deletar imagens do needsList, pois são URLs externas
-
-      // Deletar o animal
       await this.animalModel.findByIdAndDelete(id).exec();
 
       return {
@@ -162,7 +156,6 @@ export class AnimalService {
         data: animal,
       };
     } catch (error) {
-      console.error('Erro ao deletar animal:', error);
       if (error instanceof NotFoundException) {
         throw error;
       }

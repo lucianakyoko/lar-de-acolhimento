@@ -1,6 +1,8 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
+// test/setup.ts
+import 'reflect-metadata';
 // import * as express from 'express';
 import * as cors from 'cors';
 
@@ -8,7 +10,6 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   app.use(
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
     cors({
       origin: [
         'http://localhost:3000',

@@ -72,14 +72,14 @@ export class NeedItemService {
       .exec();
 
     if (!updatedAnimal) {
-      throw new Error('Animal or need item not found');
+      throw new NotFoundException('Animal or need item not found');
     }
 
     const updatedNeedItem = updatedAnimal.needsList.find(
       (item) => item._id && item._id.toString() === needId,
     );
     if (!updatedNeedItem) {
-      throw new Error('Updated need item not found');
+      throw new NotFoundException('Updated need item not found');
     }
 
     return {

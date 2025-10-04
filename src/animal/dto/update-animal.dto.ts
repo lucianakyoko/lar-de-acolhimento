@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return */
 import {
   IsBoolean,
   IsDate,
@@ -12,74 +13,91 @@ import { Transform, Type } from 'class-transformer';
 
 export class UpdateNeedItemDto {
   @IsOptional()
-  @IsString()
+  @IsString({ message: 'Imagem deve ser uma string' })
   image?: string;
 
   @IsOptional()
-  @IsString()
+  @IsString({ message: 'Nome deve ser uma string' })
   name?: string;
 
   @IsOptional()
   @Transform(({ value }) => {
     if (typeof value === 'string') {
       const clean = value.replace(/[^0-9,.-]/g, '').replace(',', '.');
-      return parseFloat(clean);
+      const parsed = parseFloat(clean);
+      if (isNaN(parsed)) {
+        throw new Error('Preço deve ser um número válido');
+      }
+      return parsed;
     }
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return value;
   })
-  @IsNumber()
+  @IsNumber({}, { message: 'Preço deve ser um número' })
   price?: number;
 }
 
 export class UpdateAnimalDto {
   @IsOptional()
-  @IsString()
+  @IsString({ message: 'Nome deve ser uma string' })
   name?: string;
 
   @IsOptional()
-  @IsDate()
+  @IsDate({ message: 'Data de nascimento deve ser uma data válida' })
   @Type(() => Date)
   birthDate?: Date;
 
   @IsOptional()
-  @IsString()
+  @IsString({ message: 'Personalidade deve ser uma string' })
   personality?: string;
 
   @IsOptional()
   @IsEnum(['pequeno', 'medio', 'grande'], {
-    message:
-      'size must be one of the following values: pequeno, medio or grande',
+    message: 'Tamanho deve ser um dos valores: pequeno, medio ou grande',
   })
   size?: string;
 
   @IsOptional()
-  @IsBoolean()
-  @Transform(({ value }) => value === 'true' || value === true)
+  @IsBoolean({ message: 'Vacinação deve ser true ou false' })
+  @Transform(({ value }) => {
+    if (value === 'true' || value === true) return true;
+    if (value === 'false' || value === false) return false;
+    throw new Error('Vacinação deve ser true ou false');
+  })
   vaccinated?: boolean;
 
   @IsOptional()
-  @IsBoolean()
-  @Transform(({ value }) => value === 'true' || value === true)
+  @IsBoolean({ message: 'Castração deve ser true ou false' })
+  @Transform(({ value }) => {
+    if (value === 'true' || value === true) return true;
+    if (value === 'false' || value === false) return false;
+    throw new Error('Castração deve ser true ou false');
+  })
   neutered?: boolean;
 
   @IsOptional()
-  @IsArray()
-  @ValidateNested({ each: true })
+  @IsArray({ message: 'Lista de necessidades deve ser um array' })
+  @ValidateNested({
+    each: true,
+    message: 'Cada item na lista de necessidades deve ser válido',
+  })
   @Type(() => UpdateNeedItemDto)
   needsList?: UpdateNeedItemDto[];
 
   @IsOptional()
-  @IsString()
+  @IsString({ message: 'Sobre deve ser uma string' })
   about?: string;
 
   @IsOptional()
-  @IsBoolean()
-  @Transform(({ value }) => value === 'true' || value === true)
+  @IsBoolean({ message: 'Disponibilidade para adoção deve ser true ou false' })
+  @Transform(({ value }) => {
+    if (value === 'true' || value === true) return true;
+    if (value === 'false' || value === false) return false;
+    throw new Error('Disponibilidade para adoção deve ser true ou false');
+  })
   availableForAdoption?: boolean;
 
   @IsOptional()
-  @IsArray()
-  @IsString({ each: true })
+  @IsArray({ message: 'Imagens deve ser um array' })
+  @IsString({ each: true, message: 'Cada imagem deve ser uma string' })
   images?: string[];
 }

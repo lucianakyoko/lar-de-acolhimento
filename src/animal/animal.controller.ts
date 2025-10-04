@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import {
   Body,
   Controller,
@@ -32,9 +34,14 @@ export class AnimalController {
   ): Promise<CreateAnimalResponse> {
     let createAnimalDto: CreateAnimalDto;
     try {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       createAnimalDto = JSON.parse(createAnimalDtoString);
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      // Converter birthDate de string para Date
+      if (
+        createAnimalDto.birthDate &&
+        typeof createAnimalDto.birthDate === 'string'
+      ) {
+        createAnimalDto.birthDate = new Date(createAnimalDto.birthDate);
+      }
     } catch (error) {
       throw new BadRequestException('Invalid DTO format');
     }

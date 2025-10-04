@@ -4,11 +4,12 @@ import {
   IsNumber,
   IsOptional,
   IsArray,
+  ArrayNotEmpty,
   ValidateNested,
 } from 'class-validator';
 import { Transform, Type } from 'class-transformer';
 
-class DonatedItemDto {
+export class DonatedItemDto {
   @IsMongoId()
   itemId: string;
 
@@ -25,6 +26,7 @@ export class CreateDonationDto {
   animalId: string;
 
   @IsArray()
+  @ArrayNotEmpty()
   @ValidateNested({ each: true })
   @Type(() => DonatedItemDto)
   donatedItems: DonatedItemDto[];

@@ -91,6 +91,16 @@
       "**/*.(t|j)s"
     ],
     "coverageDirectory": "../coverage",
-    "testEnvironment": "node"
+    "testEnvironment": "node",
+    "coveragePathIgnorePatterns": [
+      "/app.module.ts",
+      "/main.ts",
+      "/animal.module.ts",
+      "/auth.module.ts",
+      "/donation.module.ts",
+      "/need-item.module.ts",
+      "/user.module.ts",
+      "/upload.module.ts"
+    ]
   }
 }

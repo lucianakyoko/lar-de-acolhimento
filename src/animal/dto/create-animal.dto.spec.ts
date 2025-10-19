@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/require-await */
-// src/animal/dto/create-animal.dto.spec.ts
 import { validate } from 'class-validator';
 import { plainToInstance } from 'class-transformer';
 import { CreateAnimalDto } from './create-animal.dto';
@@ -105,6 +104,15 @@ describe('CreateAnimalDto', () => {
         vaccinated: 'not-a-boolean',
       });
     }).toThrow('Vacinação deve ser true ou false');
+  });
+
+  it('deve falhar se neutered não for booleano', async () => {
+    expect(() => {
+      plainToInstance(CreateAnimalDto, {
+        ...validDto,
+        neutered: 'not-a-boolean',
+      });
+    }).toThrow('Castração deve ser true ou false');
   });
 
   it('deve aceitar needsList vazia ou undefined', async () => {
@@ -224,5 +232,14 @@ describe('CreateAnimalDto', () => {
 
     expect(errors.length).toBe(0);
     expect(dto.availableForAdoption).toBe(true);
+  });
+
+  it('deve falhar se availableForAdoption não for booleano', async () => {
+    expect(() => {
+      plainToInstance(CreateAnimalDto, {
+        ...validDto,
+        availableForAdoption: 'not-a-boolean',
+      });
+    }).toThrow('Disponibilidade para adoção deve ser true ou false');
   });
 });

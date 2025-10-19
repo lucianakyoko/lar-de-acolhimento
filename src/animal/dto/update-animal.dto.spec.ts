@@ -113,6 +113,24 @@ describe('UpdateAnimalDto', () => {
     }).toThrow('Vacinação deve ser true ou false');
   });
 
+  it('deve falhar se neutered for fornecido mas não for booleano', async () => {
+    expect(() => {
+      plainToInstance(UpdateAnimalDto, {
+        ...validDto,
+        neutered: 'not-a-boolean',
+      });
+    }).toThrow('Castração deve ser true ou false');
+  });
+
+  it('deve falhar se availableForAdoption for fornecido mas não for booleano', async () => {
+    expect(() => {
+      plainToInstance(UpdateAnimalDto, {
+        ...validDto,
+        availableForAdoption: 'not-a-boolean',
+      });
+    }).toThrow('Disponibilidade para adoção deve ser true ou false');
+  });
+
   it('deve aceitar needsList vazia ou undefined', async () => {
     const dto1 = plainToInstance(UpdateAnimalDto, {
       ...validDto,

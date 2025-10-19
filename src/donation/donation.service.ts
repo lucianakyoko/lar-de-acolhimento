@@ -13,8 +13,7 @@ export class DonationService {
   ) {}
 
   async create(createDonationDto: CreateDonationDto): Promise<Donation> {
-    const newDonation = new this.donationModel(createDonationDto);
-    return newDonation.save();
+    return this.donationModel.create(createDonationDto);
   }
 
   async findAll(): Promise<Donation[]> {

@@ -30,6 +30,16 @@ export class DonationController {
     return this.donationService.findAll();
   }
 
+  @Get('summary')
+  @UseGuards(AuthGuard)
+  async getSummary(): Promise<{
+    totalDonationsAmount: number;
+    totalDonors: number;
+    totalAnimals: number;
+  }> {
+    return this.donationService.getSummary();
+  }
+
   @Get(':id')
   @UseGuards(AuthGuard)
   async findOne(@Param('id') id: string): Promise<Donation> {

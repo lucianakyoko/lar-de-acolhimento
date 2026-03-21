@@ -9,6 +9,7 @@ import { DonationModule } from './donation/donation.module';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { UploadModule } from './upload/upload.module';
+import { HealthModule } from './health/health.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { UploadModule } from './upload/upload.module';
     UserModule,
     AuthModule,
     UploadModule,
+    HealthModule,
   ],
   controllers: [AppController],
   providers: [AppService],

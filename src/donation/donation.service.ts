@@ -153,9 +153,81 @@ export class DonationService {
               in: {
                 _id: '$$d._id',
                 donorName: '$$d.donorName',
-                donatedItems: '$$d.donatedItems',
                 extraAmount: '$$d.extraAmount',
                 createdAt: '$$d.createdAt',
+
+                donatedItems: {
+                  $map: {
+                    input: '$$d.donatedItems',
+                    as: 'item',
+                    in: {
+                      itemId: '$$item.itemId',
+                      quantity: '$$item.quantity',
+
+                      // Busca o item correspondente no needsList do animal
+                      name: {
+                        $let: {
+                          vars: {
+                            need: {
+                              $arrayElemAt: [
+                                {
+                                  $filter: {
+                                    input: {
+                                      $ifNull: ['$animal.needsList', []],
+                                    },
+                                    as: 'n',
+                                    cond: {
+                                      $eq: [
+                                        '$$n._id',
+                                        { $toObjectId: '$$item.itemId' },
+                                      ],
+                                    },
+                                  },
+                                },
+                                0,
+                              ],
+                            },
+                          },
+                          in: {
+                            $ifNull: ['$$need.name', 'Item não encontrado'],
+                          },
+                        },
+                      },
+
+                      value: {
+                        $let: {
+                          vars: {
+                            need: {
+                              $arrayElemAt: [
+                                {
+                                  $filter: {
+                                    input: {
+                                      $ifNull: ['$animal.needsList', []],
+                                    },
+                                    as: 'n',
+                                    cond: {
+                                      $eq: [
+                                        '$$n._id',
+                                        { $toObjectId: '$$item.itemId' },
+                                      ],
+                                    },
+                                  },
+                                },
+                                0,
+                              ],
+                            },
+                          },
+                          in: {
+                            $multiply: [
+                              '$$item.quantity',
+                              { $ifNull: ['$$need.price', 0] },
+                            ],
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
               },
             },
           },

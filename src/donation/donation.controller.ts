@@ -30,6 +30,12 @@ export class DonationController {
     return this.donationService.findAll();
   }
 
+  @Get('animals')
+  @UseGuards(AuthGuard)
+  async getDonationsGroupedByAnimal(): Promise<any[]> {
+    return this.donationService.getDonationsGroupedByAnimal();
+  }
+
   @Get('summary')
   @UseGuards(AuthGuard)
   async getSummary(): Promise<{

@@ -34,6 +34,150 @@ export class DonationService {
     return donation;
   }
 
+  async getDonationsGroupedByAnimal(): Promise<any[]> {
+    const result = await this.donationModel.aggregate([
+      // 1. Agrupar por animalId
+      {
+        $group: {
+          _id: '$animalId',
+          donations: { $push: '$$ROOT' },
+          totalExtraAmount: { $sum: { $ifNull: ['$extraAmount', 0] } },
+          donationCount: { $sum: 1 },
+        },
+      },
+
+      // 2. Lookup para animal (convertendo animalId string → ObjectId)
+      {
+        $lookup: {
+          from: 'animals',
+          let: { animalIdStr: '$_id' },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $eq: ['$_id', { $toObjectId: '$$animalIdStr' }],
+                },
+              },
+            },
+          ],
+          as: 'animal',
+        },
+      },
+
+      // 3. Desembrulhar (mantém mesmo se não encontrar, mas vamos filtrar depois)
+      {
+        $unwind: {
+          path: '$animal',
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+
+      // 4. FILTRAR: só mantém grupos onde o animal realmente existe
+      {
+        $match: {
+          animal: { $ne: null },
+        },
+      },
+
+      // 5. Calcular valor total dos itens doados
+      {
+        $addFields: {
+          totalDonatedItemsValue: {
+            $sum: {
+              $map: {
+                input: '$donations',
+                as: 'donation',
+                in: {
+                  $sum: {
+                    $map: {
+                      input: '$$donation.donatedItems',
+                      as: 'item',
+                      in: {
+                        $multiply: [
+                          '$$item.quantity',
+                          {
+                            $let: {
+                              vars: {
+                                need: {
+                                  $arrayElemAt: [
+                                    {
+                                      $filter: {
+                                        input: {
+                                          $ifNull: ['$animal.needsList', []],
+                                        },
+                                        as: 'need',
+                                        cond: {
+                                          $eq: [
+                                            '$$need._id',
+                                            { $toObjectId: '$$item.itemId' },
+                                          ],
+                                        },
+                                      },
+                                    },
+                                    0,
+                                  ],
+                                },
+                              },
+                              in: { $ifNull: ['$$need.price', 0] },
+                            },
+                          },
+                        ],
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+
+      // 6. Formatar saída final
+      {
+        $project: {
+          _id: 0,
+          animal: {
+            $mergeObjects: [
+              '$animal',
+              {
+                __v: '$$REMOVE',
+                updatedAt: '$$REMOVE',
+                createdAt: '$$REMOVE',
+              },
+            ],
+          },
+          donations: {
+            $map: {
+              input: '$donations',
+              as: 'd',
+              in: {
+                _id: '$$d._id',
+                donorName: '$$d.donorName',
+                donatedItems: '$$d.donatedItems',
+                extraAmount: '$$d.extraAmount',
+                createdAt: '$$d.createdAt',
+              },
+            },
+          },
+          totalExtraAmount: { $round: ['$totalExtraAmount', 2] },
+          totalDonatedItemsValue: { $round: ['$totalDonatedItemsValue', 2] },
+          totalValue: {
+            $round: [
+              { $add: ['$totalExtraAmount', '$totalDonatedItemsValue'] },
+              2,
+            ],
+          },
+          donationCount: 1,
+        },
+      },
+
+      // 7. Ordenar por valor total descendente (ou mude para outra ordem)
+      { $sort: { totalValue: -1 } },
+    ]);
+
+    return result;
+  }
+
   async findByAnimal(
     animalId: string,
   ): Promise<{ animal: Animal; donations: Donation[] } | { message: string }> {

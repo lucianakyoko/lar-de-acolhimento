@@ -153,6 +153,61 @@ export class DonationService {
               in: {
                 _id: '$$d._id',
                 donorName: '$$d.donorName',
+                totalDonation: {
+                  $round: [
+                    {
+                      $add: [
+                        { $ifNull: ['$$d.extraAmount', 0] },
+                        {
+                          $sum: {
+                            $map: {
+                              input: '$$d.donatedItems',
+                              as: 'item',
+                              in: {
+                                $multiply: [
+                                  '$$item.quantity',
+                                  {
+                                    $let: {
+                                      vars: {
+                                        need: {
+                                          $arrayElemAt: [
+                                            {
+                                              $filter: {
+                                                input: {
+                                                  $ifNull: [
+                                                    '$animal.needsList',
+                                                    [],
+                                                  ],
+                                                },
+                                                as: 'n',
+                                                cond: {
+                                                  $eq: [
+                                                    '$$n._id',
+                                                    {
+                                                      $toObjectId:
+                                                        '$$item.itemId',
+                                                    },
+                                                  ],
+                                                },
+                                              },
+                                            },
+                                            0,
+                                          ],
+                                        },
+                                      },
+                                      in: { $ifNull: ['$$need.price', 0] },
+                                    },
+                                  },
+                                ],
+                              },
+                            },
+                          },
+                        },
+                      ],
+                    },
+                    2,
+                  ],
+                },
                 extraAmount: '$$d.extraAmount',
                 createdAt: '$$d.createdAt',
 

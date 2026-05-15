@@ -1,6 +1,6 @@
-# API ONG Lar São Francisco
+# API ONG Lar de Acolhimento
 
-API para gerenciar os animais resgatados e suas necessidades dentro da ONG Lar São Francisco.
+API para gerenciar os animais resgatados e suas necessidades dentro da ONG Lar de Acolhimento.
 
 ---
 

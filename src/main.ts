@@ -14,7 +14,7 @@ async function bootstrap() {
       origin: [
         'http://localhost:3000',
         'http://localhost:5173',
-        'https://lar-sao-francisco.vercel.app',
+        'https://lar-de-acolhimento.vercel.app',
       ],
       methods: ['GET', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
       allowedHeaders: ['Content-Type', 'Authorization'],
